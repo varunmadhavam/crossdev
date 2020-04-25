@@ -12,11 +12,10 @@ if [ "$#" -ne 2 ]; then
 fi
 
 if [ -d "$2" ]; then
+    CROSS_TOOLS="$2"/crosstools/"$1"/"$TOOL"/bin
     if [ "$1"=="ARM" ]; then
-        wget https://developer.arm.com/-/media/Files/downloads/gnu-rm/9-2019q4/gcc-arm-none-eabi-9-2019-q4-major-x86_64-linux.tar.bz2 -O tars/armtool.tar.bz2
-	if [ $? -ne 0 ]; then
-
-	TOOL="arm-none-eabi"
+	    TOOL="arm-none-eabi"
+        URL ="https://developer.arm.com/-/media/Files/downloads/gnu-rm/9-2019q4/gcc-arm-none-eabi-9-2019-q4-major-x86_64-linux.tar.bz2"
     elif [ "$1" == "AVR" ]; then
         echo "AVR choosen"
         exit 0
@@ -27,7 +26,21 @@ if [ -d "$2" ]; then
         echo "Unsuported architecture " $1
         exit 1
     fi
-    CROSS_TOOLS="$2"/crosstools/"$1"/"$TOOL"/bin
+    mkdir -p "$2"/crosstools/"$2"
+    if [ $? -ne 0 ]; then
+        echo "Error while creating target directoy"
+        exit 1
+    fi
+    wget "$URL" -O tars/"$TOOL".tar.bz2
+    if [ $? -ne 0 ]; then
+        echo "Error while downloading tools"
+        exit 1
+    fi
+    tar -xvf tars/"$TOOL".tar.bz2 -C "$2"/crosstools/"$1"
+    if [ $? -ne 0 ]; then
+        echo "Error while untarring tools"
+        exit 1
+    fi
     for x in $bins; do allbins+="$(which $x) "; done
     for x in $(ls -ltr "$CROSS_TOOLS"/* | awk {'print $9'}); do allbins+="$x "; done
     for y in $(for x in $allbins; do ldd $x; done| grep "=>" | awk {'print $3'} | uniq); do libs+="$y ";done
