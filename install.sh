@@ -1,9 +1,10 @@
 #!/bin/bash
 
+VERBOSE="no"
 bins="bash  cat  ls  make  mkdir  rm  sed  sh"
 TOOL=""
 URL=""
-VERBOSE="yes"
+
 if [ "$#" -ne 2 ]; then
     echo "Usage ./install.sh ARCH TARGET_PATH"
     echo "ARCH can be avr,arm or xtensa"
