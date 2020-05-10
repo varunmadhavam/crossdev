@@ -1,0 +1,4 @@
+VERBOSE="yes"
+bins="bash  cat  ls  make  mkdir  rm  sed  sh"
+TOOL=""
+URL=""

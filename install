@@ -1,9 +1,7 @@
 #!/bin/bash
 
-VERBOSE="yes"
-bins="bash  cat  ls  make  mkdir  rm  sed  sh"
-TOOL=""
-URL=""
+SCRIPTROOT=$(dirname $(readlink -f $0))
+source $SCRIPTROOT/config/configs
 
 if [ "$#" -ne 2 ]; then
     echo "Usage ./install.sh ARCH TARGET_PATH"
