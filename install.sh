@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERBOSE="no"
+VERBOSE="yes"
 bins="bash  cat  ls  make  mkdir  rm  sed  sh"
 TOOL=""
 URL=""
@@ -44,28 +44,16 @@ if [ -d "$2" ]; then
     fi
 
     echo "Creating Target Directory ""$2"/crosstools/"$1"/crosscompiler/"$TOOL"
-    mkdir -p "$2"/crosstools/"$1"/crosscompiler/"$TOOL"
-    if [ $? -ne 0 ]; then
-        echo "Error while creating target directoy"
-        exit 1
-    fi
+    mkdir -p "$2"/crosstools/"$1"/crosscompiler/"$TOOL" || (echo "Error while creating target directoy" && exit 1)
     
     echo "Dowloading Cross Compiler for "$1
-    wget $VWGET $URL -O tars/"$TOOL".tar.bz2
-    if [ $? -ne 0 ]; then
-        echo "Error while downloading tools"
-        exit 1
-    fi
+    wget $VWGET $URL -O tars/"$TOOL".tar.bz2 || (echo "Error while downloading tools" && exit 1)
     
     echo "Untarring Cross Compiler"
-    tar --strip-components=1 -x"$VTAR"f  tars/"$TOOL".tar.bz2 -C "$2"/crosstools/"$1"/crosscompiler/"$TOOL"
-    if [ $? -ne 0 ]; then
-        echo "Error while untarring tools"
-        exit 1
-    fi
+    tar --strip-components=1 -x"$VTAR"f  tars/"$TOOL".tar.bz2 -C "$2"/crosstools/"$1"/crosscompiler/"$TOOL" || (echo "Error while untarring tools" && exit 1)
 
     echo "Copying Executables"
-    for y in $(for x in $bins; do which $x; done); do mkdir -p "$2"/crosstools/"$1""`dirname $y`";cp $VCP $y "$2"/crosstools/"$1""`dirname $y`"; done
+    for y in $(for x in $bins; do which $x; done); do (mkdir -p "$2"/crosstools/"$1""`dirname $y`" && cp $VCP $y "$2"/crosstools/"$1""`dirname $y`") || (echo "Error while copying an executable" && exit 1); done
     
     echo "Copying Libs"
     CROSS_TOOLS="$2"/crosstools/"$1"/crosscompiler/"$TOOL"/bin
@@ -73,7 +61,7 @@ if [ -d "$2" ]; then
     for x in $(ls -ltr "$CROSS_TOOLS"/* | awk {'print $9'}); do allbins+="$x "; done
     for y in $(for x in $allbins; do ldd $x; done| grep "=>" | awk {'print $3'} | uniq); do libs+="$y ";done
     for y in $(for x in $allbins; do ldd $x; done | grep -v "=>" | grep -i "/lib" | awk {'print $1'}|uniq); do libs+="$y ";done
-    for x in $libs; do mkdir -p "$2"/crosstools/"$1""`dirname $x`";cp $VCP $x "$2"/crosstools/"$1""`dirname $x`";done
+    for x in $libs; do (mkdir -p "$2"/crosstools/"$1""`dirname $x`" && cp $VCP $x "$2"/crosstools/"$1""`dirname $x`") || (echo "Error while Copying a LIbrary" && exit 1);done
 else	
     echo "Path " $2 " doesnot exist"
     exit 1
